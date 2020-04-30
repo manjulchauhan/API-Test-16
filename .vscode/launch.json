@@ -1,0 +1,34 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Publish: Microsoft cloud sandbox",
+            "type": "al",
+            "request": "launch",
+            "startupObjectId": 22,
+            "breakOnError": true,
+            "breakOnRecordWrite": false,
+            "launchBrowser": true,
+            "enableSqlInformationDebugger": true,
+            "enableLongRunningSqlStatements": true,
+            "longRunningSqlStatementsThreshold": 500,
+            "numberOfSqlStatements": 10,
+            "sandboxName": "Sandbox"
+        },
+        {
+            "type": "al",
+            "request": "launch",
+            "name": "Your own server",
+            "server": "http://localhost",
+            "serverInstance": "BC160",
+            "authentication": "Windows",
+            "startupObjectId": 22,
+            "startupObjectType": "Page",
+            "breakOnError": true,
+            "launchBrowser": true,
+            "enableLongRunningSqlStatements": true,
+            "enableSqlInformationDebugger": true,
+            "schemaUpdateMode": "ForceSync"
+        }
+    ]
+}
