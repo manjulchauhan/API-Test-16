@@ -1,0 +1,13 @@
+<item>
+    <title>1 DKK = 0.14554450 USD</title>
+    <link>http://www.floatrates.com/dkk/usd/</link>
+    <description>1 Danish Krone = 0.14554450 U.S. Dollar</description>
+    <pubDate>Thu, 30 Apr 2020 12:00:01 GMT</pubDate>
+    <baseCurrency>DKK</baseCurrency>
+    <baseName>Danish Krone</baseName>
+    <targetCurrency>USD</targetCurrency>
+    <targetName>U.S. Dollar</targetName>
+    <exchangeRate>0.14554450</exchangeRate>
+    <inverseRate>6.87075096</inverseRate>
+    <inverseDescription>1 U.S. Dollar = 6.87075096 Danish Krone</inverseDescription>
+</item>

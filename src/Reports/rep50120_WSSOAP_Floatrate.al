@@ -1,70 +1,56 @@
-report 50121 "DIR WS REST Floatrate"
+report 50120 "DIR WS SOAP Floatrate"
 {
-    Caption = 'WS REST Floatrate';
+    Caption = 'WS SOAP Floatrate';
     UsageCategory = ReportsAndAnalysis;
     ApplicationArea = All;
     ProcessingOnly = true;
-    //UseRequestPage = false;
-
-    var
-        JsonText: Text;
-        JsonToken: JsonToken;
-        JsonValue: JsonValue;
-        JsonObject: JsonObject;
-        JsonArray: JsonArray;
-        Currency: Record Currency;
-        CurrRate: Record "Currency Exchange Rate" temporary;
+    UseRequestPage = false;
 
     trigger OnInitReport()
     var
         httpClient: HttpClient;
         HttpResponse: HttpResponseMessage;
         Url: Text;
-
+        XMLText: Text;
+        XmlReadOptions: XmlReadOptions;
+        xmlDoc: XmlDocument;
+        XmlNodeList: XmlNodeList;
+        XmlNode: XmlNode;
+        ExchRateAmount: Decimal;
     begin
-        Url := 'http://www.floatrates.com/daily/dkk.json';
+        Url := 'http://www.floatrates.com/daily/dkk.xml';
         httpClient.Get(Url, HttpResponse);
         with HttpResponse do begin
             if not IsSuccessStatusCode then
                 Error('Not working - the error was:\\Status Code:%1\\Error %2',
                     HttpStatusCode,
                     ReasonPhrase);
-            Content.ReadAs(JsonText);
+            Content.ReadAs(XMLText);
         end;
-        JsonText := '[' + JsonText + ']';
-        if not JsonArray.ReadFrom(JsonText) then
-            Error('Not a Json object');
-        foreach JsonToken in JsonArray do begin
-            JsonObject := JsonToken.AsObject();
-            if Currency.FindSet() then
-                repeat
-                    InsertCurrencyRate(Currency.Code);
-                until Currency.Next() = 0;
-            if Page.RunModal(0, CurrRate) = Action::Cancel then;
-        end;
+        XmlReadOptions.PreserveWhitespace := true;
+        XmlDocument.ReadFrom(XMLText, XmlReadOptions, xmlDoc);
+        if xmlDoc.SelectNodes('//channel/item', XmlNodeList) then begin
+            foreach XmlNode in XmlNodelist do begin
+                if XmlNode.SelectSingleNode('pubDate', XmlNode) then
+                    CurrencyRate."Starting Date" := ConvertDate(XmlNode.AsXmlElement.InnerText);
 
+                if XmlNode.SelectSingleNode('../targetCurrency', XmlNode) then
+                    CurrencyRate."Currency Code" := XmlNode.AsXmlElement.InnerText;
+
+                if XmlNode.SelectSingleNode('../inverseRate', XmlNode) then
+                    Evaluate(ExchRateAmount, XmlNode.AsXmlElement.InnerText);
+                CurrencyRate."Relational Exch. Rate Amount" := ExchRateAmount * 100;
+
+                CurrencyRate."Exchange Rate Amount" := 100;
+                if CurrencyRate.Insert() then;
+                CurrencyRate.Init();
+            end;
+            if page.runmodal(0, CurrencyRate) = action::Cancel then;
+        end;
     end;
 
-    local procedure InsertCurrencyRate(inCurrCode: code[10])
     var
-        TokenName: Text[50];
-        LowerCurrCode: Text[50];
-        InvExchRate: Decimal;
-    begin
-        CurrRate.Init();
-        LowerCurrCode := LowerCase(inCurrCode);
-        if not JsonObject.get(LowerCurrCode, JsonToken) then
-            exit;
-        TokenName := '$.' + LowerCurrCode + '.code';
-        CurrRate."Currency Code" := Format(SelectJsonToken(JsonObject, TokenName));
-        CurrRate."Exchange Rate Amount" := 100;
-        TokenName := '$.' + LowerCurrCode + '.inverseRate';
-        Evaluate(InvExchRate, Format(SelectJsonToken(JsonObject, TokenName)));
-        CurrRate."Relational Exch. Rate Amount" := InvExchRate * 100;
-        TokenName := '$.' + LowerCurrCode + '.date';
-        CurrRate."Starting Date" := ConvertDate(Format(SelectJsonToken(JsonObject, TokenName)));
-        if CurrRate.Insert() then;
-    end;
+        CurrencyRate: Record "Currency Exchange Rate" temporary;
 
     local procedure ConvertDate(inDateTxt: Text[50]): Date;
     var
@@ -114,11 +100,5 @@ report 50121 "DIR WS REST Floatrate"
                 MonthNo := 12;
         end;
         exit(DMY2Date(DayNo, MonthNo, YearNo));
-    end;
-
-    procedure SelectJsonToken(JsonObject: JsonObject; Path: text) JsonToken: JsonToken
-    begin
-        if not JsonObject.SelectToken(Path, JsonToken) then
-            Error('Could not find a token with path %1', Path);
     end;
 }
