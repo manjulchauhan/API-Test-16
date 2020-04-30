@@ -1,0 +1,20 @@
+ResponseCode: 200 (OK)
+Content-Length:384
+Content-Type:text/xml; charset=utf-8
+Date:Thu, 30 Apr 2020 10:43:07 GMT
+Server:Microsoft-HTTPAPI/2.0
+
+<?xml version="1.0" encoding="utf-16"?>
+<Soap:Envelope xmlns:Soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <Soap:Body>
+    <Read_Result xmlns="urn:microsoft-dynamics-schemas/page/wscustomerapi">
+      <WSCustomerAPI>
+        <Key>24;EgAAAAJ7BTEAMAAwADAAMA==6;1449100;</Key>
+        <No>10000</No>
+        <Name>The Cannon Group PLC</Name>
+        <DateFilter>0001-01-01</DateFilter>
+        <SalesLCY>17100.96</SalesLCY>
+      </WSCustomerAPI>
+    </Read_Result>
+  </Soap:Body>
+</Soap:Envelope>
