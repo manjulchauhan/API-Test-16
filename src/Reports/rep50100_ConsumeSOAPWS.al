@@ -45,7 +45,7 @@ report 50100 "DIR Consume SOAP WS"
                     '  </soap:Body>' +
                     '</soap:Envelope>';
         // Set the URL
-        Url := 'http://navtraining:7047/BC160/WS/CRONUS%20International%20Ltd./Page/WSCustomerSOAP';
+        Url := 'http://navtraining:7047/BC160_WebService/WS/CRONUS%20International%20Ltd./Page/WSCustomerSOAP';
         // Use Windows authentication
         UserName := 'User';
         Password := 'Password!23';
@@ -53,11 +53,16 @@ report 50100 "DIR Consume SOAP WS"
         // Prepare the Request message and the Respons message
         HttpRequest.SetRequestUri(URL);
         HttpRequest.Method('POST');
+        // Set the Content
         HttpContent.WriteFrom(XMLtext);
+
+        //Assign the Headers to the content
         HttpContent.GetHeaders(HttpHeaders);
         HttpHeaders.Remove('Content-Type');
         HttpHeaders.Add('Content-Type', 'application/xml;charset=utf-8');
+        // Put the content in the Request
         HttpRequest.Content := HttpContent;
+
         HttpRequest.GetHeaders(HttpHeaders);
         HttpHeaders.Add('SOAPAction', 'urn:microsoft-dynamics-schemas/page/WSCustomerSOAP');
         // Basic authentication 
